@@ -1,5 +1,9 @@
 # DevOps Launchpad
 
+[![CI](https://github.com/ibrahim0312/devops-launchpad/actions/workflows/ci.yml/badge.svg)](https://github.com/ibrahim0312/devops-launchpad/actions/workflows/ci.yml)
+
+**[Live demo](https://devops-launchpad.onrender.com/) · [Source code](https://github.com/ibrahim0312/devops-launchpad) · [Health endpoint](https://devops-launchpad.onrender.com/health)**
+
 A portfolio project that packages a Node.js web app in Docker and validates every push and pull request with GitHub Actions. The dashboard displays the current app instance's health, uptime, environment and release version. It is not a monitor for external services.
 
 ## Start here
@@ -35,21 +39,19 @@ docker compose down
 
 The container runs as the unprivileged node user. Its health check calls /health. Compose adds a read-only filesystem and drops Linux capabilities.
 
-## Activate the pipeline
+## GitHub Actions pipeline
 
-1. Create an empty GitHub repository called `devops-launchpad` (do not initialize it with a README).
-2. Open a terminal in this extracted project folder and run:
+The workflow in `.github/workflows/ci.yml` runs on pushes, pull requests and manual triggers. It checks JavaScript syntax, runs six integration tests, builds a Docker image, then starts the container and waits for its health check to pass. A failing step fails the workflow.
 
-```sh
-git init
-git add .
-git commit -m "Build containerized DevOps Launchpad with CI"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/devops-launchpad.git
-git push -u origin main
-```
+## Deployment on Render
 
-Replace YOUR_USERNAME with your actual GitHub username. The push activates `.github/workflows/ci.yml`. In the repository's Actions tab, check the Test and build run. Tests must pass before Docker builds; a container must become healthy before the workflow succeeds. Pull requests receive the same checks. Hosted runner availability and billing depend on your GitHub account.
+The live service builds this repository's Dockerfile on Render. The service is configured to deploy the `main` branch **After CI Checks Pass**, with `/health` as its HTTP health check path.
+
+Delivery flow: push to main → GitHub Actions checks → Render builds the Dockerfile → Render verifies health → updated app goes live.
+
+Automatic deployment was verified by pushing a heading change and seeing it appear on the public site after CI passed. Pull requests run CI without updating the main-branch service. The CI image is used for verification; Render builds its own deployment image from the repository.
+
+The demo uses Render's free instance, which can sleep after inactivity. Uptime measures the current process and resets on restart or deployment. Release and environment labels come from APP_VERSION and APP_ENV; the public release label is not automatically synchronized with the commit SHA.
 
 ## What is implemented
 
@@ -58,10 +60,18 @@ Replace YOUR_USERNAME with your actual GitHub username. The push activates `.git
 - Integration tests for health, assets, configuration, missing paths and rejected writes.
 - Non-root Docker image, Compose configuration and graceful shutdown.
 - Continuous integration: syntax check, tests, image build and container smoke test.
+- Continuous deployment on Render after passing CI, with an HTTP health check.
 
-## Next milestone: continuous deployment
+## Screenshots
 
-This version implements CI; it does not publish an image or automatically deploy to a public server. Choose a hosting target first. A later deployment job can publish a commit-tagged image and update that host only after CI passes. Keep host credentials in GitHub Actions secrets. Add rollback and a post-deployment health check before calling the project complete CI/CD.
+To document the project, save screenshots of the live dashboard, a passing Actions run, and a successful Render deployment in a `docs/` folder. Then add their relative image links here. No screenshot files are included yet.
+
+## Future improvements
+
+- Display a unique deployed commit identifier in the dashboard.
+- Verify that failing CI prevents deployment with a controlled test branch.
+- Document and test a rollback procedure.
+- Add external monitoring for the public service.
 
 ## Configuration
 
@@ -75,9 +85,9 @@ If changing PORT in Docker, also change the port mapping and exposed port as app
 
 ## Explain it in an interview
 
-“I built a Node.js app, containerized it as a non-root service, and automated integration tests, image builds and health verification with GitHub Actions. Every change must pass these checks before it is ready to deploy.”
+“I built and deployed a containerized Node.js app with six integration tests. GitHub Actions verifies each change, and Render automatically deploys main after CI passes and verifies the service health.”
 
-Show a screenshot of the dashboard, a passing Actions run and the Docker health status as evidence. Don't claim production deployment until you have deployed it.
+Use the live demo, passing Actions run and Render deployment history to demonstrate the delivery flow.
 
 ## References
 
