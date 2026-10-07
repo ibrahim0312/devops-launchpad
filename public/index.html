@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>DevOps Launchpad</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body><main>
+<header><a class="brand" href="/">▣ <span>LAUNCHPAD</span></a><span class="tag">DEVOPS PROJECT / 01</span></header>
+<section class="hero"><p class="eyebrow">BUILD. TEST. SHIP.</p><h1>Every release.<br>A clear signal.</h1><p class="intro">A containerized app with automated tests and a repeatable build pipeline. Check the running service below.</p></section>
+<section class="dashboard" aria-label="Live service status">
+<div class="section-title"><h2>Service overview</h2><span id="connection" role="status">Connecting…</span></div>
+<div class="metrics"><article><p>HEALTH</p><h3 id="health">—</h3><small>Live HTTP health check</small></article><article><p>UPTIME</p><h3 id="uptime">—</h3><small>Since this app started</small></article><article><p>RELEASE</p><h3 id="version">—</h3><small id="environment">Environment loading</small></article></div>
+<div class="refresh"><span id="checked">Waiting for first check</span><button id="refresh">Refresh status ↗</button></div>
+</section>
+<section class="delivery"><div><p class="eyebrow">THE DELIVERY PATH</p><h2>From commit to container.</h2><p>Each push and pull request runs the checks below in GitHub Actions.</p></div><ol><li><b>01 / Test</b><span>Verify API behavior and error responses.</span></li><li><b>02 / Build</b><span>Package the app in a Docker image.</span></li><li><b>03 / Verify</b><span>Start the container and check its health.</span></li></ol></section>
+<footer><span>DevOps Launchpad · Portfolio project</span><span>Node.js / Docker / GitHub Actions</span></footer>
+</main></body></html>

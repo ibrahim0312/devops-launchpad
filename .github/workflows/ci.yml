@@ -1,0 +1,36 @@
+name: Test and build
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - name: Check JavaScript syntax
+        run: npm run check
+      - name: Run integration tests
+        run: npm test
+      - name: Build container
+        run: docker build -t devops-launchpad:${{ github.sha }} .
+      - name: Start and verify container
+        shell: bash
+        run: |
+          docker run -d --name launchpad -p 127.0.0.1:3000:3000 -e APP_VERSION=${{ github.sha }} devops-launchpad:${{ github.sha }}
+          trap 'docker logs launchpad; docker rm -f launchpad' EXIT
+          for attempt in {1..30}; do
+            health=$(docker inspect --format '{{.State.Health.Status}}' launchpad)
+            if [ "$health" = healthy ]; then
+              curl --fail http://127.0.0.1:3000/health
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
